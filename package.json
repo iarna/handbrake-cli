@@ -1,0 +1,46 @@
+{
+  "name": "handbrake-cli",
+  "version": "1.0.0",
+  "description": "Provides the handbrake cli in a crossplatform compatible manor",
+  "main": "index.js",
+  "bin": {
+    "handbrake-cli": "run-handbrake.js"
+  },
+  "scripts": {
+    "install": "node install.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "handbrake",
+    "handbrake-cli",
+    "HandbrakeCLI"
+  ],
+  "author": "Rebecca Turner <me@re-becca.org> (http://re-becca.org/)",
+  "license": "ISC",
+  "dependencies": {
+    "are-we-there-yet": "^1.1.4",
+    "gauge": "^2.7.4",
+    "graceful-fs": "^4.1.11",
+    "unzip": "^0.1.11"
+  },
+  "files": [
+    "detect-handbrake-os.js",
+    "download-handbrake.js",
+    "exec.js",
+    "extract-handbrake.js",
+    "fetch.js",
+    "get-handbrake-url.js",
+    "install.js",
+    "index.js",
+    "run-handbrake.js"
+  ],
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iarna/handbrake-cli.git"
+  },
+  "bugs": {
+    "url": "https://github.com/iarna/handbrake-cli/issues"
+  },
+  "homepage": "https://github.com/iarna/handbrake-cli#readme"
+}
