@@ -19,9 +19,12 @@
   "license": "ISC",
   "dependencies": {
     "are-we-there-yet": "^1.1.4",
+    "cross-exec-file": "^2.0.0",
     "gauge": "^2.7.4",
     "graceful-fs": "^4.1.11",
-    "unzip": "^0.1.11"
+    "rimraf": "^2.6.2",
+    "unzip": "^0.1.11",
+    "which": "^1.3.0"
   },
   "files": [
     "detect-handbrake-os.js",

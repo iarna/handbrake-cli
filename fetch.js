@@ -1,20 +1,22 @@
 'use strict'
 module.exports = fetch
 
-var http = require('http')
-var https = require('https')
-var url = require('url')
-var extend = Object.assign || require('util')._extend
+const http = require('http')
+const https = require('https')
+const url = require('url')
+const extend = Object.assign || require('util')._extend
 
-function fetch (urlToGet, options) {
-  var toRequest = url.parse(urlToGet)
-  var proto = toRequest.protocol === 'https:' ? https : http
-  if (!options) options = {}
-  extend(options, {
-    hostname: toRequest.hostname,
-    port: toRequest.port || (proto === https ? 443 : 80),
-    path: toRequest.path,
-    agent: false
+function fetch (href) {
+  return new Promise((resolve, reject) => {
+    const toRequest = url.parse(href)
+    const proto = toRequest.protocol === 'https:' ? https : http
+    const req = proto.get({
+      hostname: toRequest.hostname,
+      port: toRequest.port || (proto === https ? 443 : 80),
+      path: toRequest.path,
+      agent: false
+    })
+    req.on('error', reject)
+    req.on('response', resolve)
   })
-  return proto.get(options)
 }

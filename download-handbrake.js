@@ -1,53 +1,54 @@
 'use strict'
 module.exports = downloadHandbrake
 
-var http = require('http')
-var https = require('https')
-var url = require('url')
-var fs = require('fs')
-var path = require('path')
-var TrackerGroup = require('are-we-there-yet').TrackerGroup
-var Gauge = require('gauge')
-var fetch = require('./fetch.js')
+const http = require('http')
+const https = require('https')
+const url = require('url')
+const fs = require('fs')
+const path = require('path')
+const startGauge = require('./gauge')
+const TrackerGroup = require('are-we-there-yet').TrackerGroup
+const fetch = require('./fetch.js')
+const promisify = require('./promisify')
+const unlink = promisify(fs.unlink)
+const tillFinished = require('./till-finished.js')
 
-function downloadHandbrake (os, downloadsURL, cb) {
-  var filename = path.resolve(__dirname, 'archive' + os.archiveExt)
-  var progress = new TrackerGroup()
-  var gauge = new Gauge(process.stderr)
-  gauge.enable()
-  progress.on('change', function (name, completion, tracker) {
-    gauge.pulse()
-    gauge.show(name, completion)
+function ignoreErrorAnd (p) {
+  return p.catch(() => null)
+}
+
+function downloadHandbrake (os, downloadsURL) {
+  const filename = path.resolve(__dirname, 'archive' + os.archiveExt)
+  const progress = new TrackerGroup()
+  const unlinkProgress = progress.newItem('Unlinking old archive', 1)
+  const followRedirects = progress.newItem('Following redirects to archive', 2)
+  const downloadGroup = progress.newGroup('Downloading archive...', 17)
+  const downloadProgress = downloadGroup.newStream()
+  return startGauge(gauge => {
+    progress.on('change', function (name, completion, tracker) {
+      gauge.pulse()
+      gauge.show(name, completion)
+    })
+    unlinkProgress.completeWork(0)
+    return ignoreErrorAnd(unlink(filename)).then(() => {
+      unlinkProgress.finish()
+      followRedirects.completeWork(0)
+      return redirectMaybe(downloadsURL)
+    })
   })
-  var unlinkProgress = progress.newItem('Unlinking old archive', 1)
-  var followRedirects = progress.newItem('Following redirects to archive', 2)
-  var downloadGroup = progress.newGroup('Downloading archive...', 17)
-  var downloadProgress = downloadGroup.newStream()
-  unlinkProgress.completeWork(0)
-  function ret () {
-    gauge.disable()
-    cb.apply(null, arguments)
-  }
-  fs.unlink(filename, function () {
-    unlinkProgress.finish()
-    followRedirects.completeWork(0)
-    redirectMaybe(downloadsURL)
-    function redirectMaybe (downloadsURL) {
-      fetch(downloadsURL).on('response', function (res) {
-        if (res.statusCode === 304 || res.statusCode === 302) {
-          var newURL = url.resolve(downloadsURL, res.headers.location)
-          if (newURL === downloadsURL) return ret(new Error('Redirect loop detected'))
-          return redirectMaybe(newURL)
-        } else {
-          followRedirects.finish()
-          if (res.headers['content-length']) {
-            downloadProgress.addWork(res.headers['content-length'])
-          }
-          res.pipe(downloadProgress).pipe(fs.createWriteStream(filename)).on('finish', function () {
-            ret()
-          })
+  function redirectMaybe (downloadsURL) {
+    return fetch(downloadsURL).then(res => {
+      if (res.statusCode === 304 || res.statusCode === 302) {
+        const newURL = url.resolve(downloadsURL, res.headers.location)
+        if (newURL === downloadsURL) throw new Error('Redirect loop detected')
+        return redirectMaybe(newURL)
+      } else {
+        followRedirects.finish()
+        if (res.headers['content-length']) {
+          downloadProgress.addWork(res.headers['content-length'])
         }
-      })
-    }
-  })
+        return tillFinished(res.pipe(downloadProgress).pipe(fs.createWriteStream(filename)))
+      }
+    })
+  }
 }
