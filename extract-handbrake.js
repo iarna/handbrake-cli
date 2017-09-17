@@ -13,8 +13,8 @@ const startGauge = require('./gauge')
 const TrackerGroup = require('are-we-there-yet').TrackerGroup
 
 function extractHandbrake (os) {
-  const filename = path.resolve(__dirname, 'archive' + os.archiveExt)
-  const outputdir = path.resolve(__dirname, 'archive')
+  const filename = os.archiveDir + os.archiveExt
+  const outputdir = os.archiveDir
   const progress = new TrackerGroup()
   const unlinkProgress = progress.newItem('Unlinking outputdir', 1)
   const extractGroup = progress.newGroup('Extracting archive...', 17)

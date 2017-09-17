@@ -18,7 +18,7 @@ function ignoreErrorAnd (p) {
 }
 
 function downloadHandbrake (os, downloadsURL) {
-  const filename = path.resolve(__dirname, 'archive' + os.archiveExt)
+  const filename = os.archiveDir + os.archiveExt
   const progress = new TrackerGroup()
   const unlinkProgress = progress.newItem('Unlinking old archive', 1)
   const followRedirects = progress.newItem('Following redirects to archive', 2)

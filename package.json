@@ -32,12 +32,15 @@
     "exec.js",
     "extract-handbrake.js",
     "fetch.js",
+    "gauge.js",
     "get-handbrake-url.js",
-    "install.js",
     "index.js",
-    "run-handbrake.js"
+    "install-data.js",
+    "install.js",
+    "promisify.js",
+    "run-handbrake.js",
+    "till-finished.js"
   ],
-  "devDependencies": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/iarna/handbrake-cli.git"
