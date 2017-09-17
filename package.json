@@ -1,6 +1,6 @@
 {
   "name": "handbrake-cli",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Provides the handbrake cli in a crossplatform compatible manor",
   "main": "index.js",
   "bin": {
